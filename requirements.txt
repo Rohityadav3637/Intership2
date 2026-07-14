@@ -1,0 +1,14 @@
+ultralytics
+torch
+torchvision
+opencv-python
+pandas
+numpy
+scikit-learn
+mlflow
+onnx
+onnxruntime
+kaggle
+matplotlib
+pillow
+timm

@@ -1,0 +1,30 @@
+# SteelSight Git Ignore File
+
+# Large datasets and raw files
+data/
+
+# Environment and sensitive keys
+.venv/
+venv/
+kaggle.json
+
+# Model runs and weights
+runs/
+*.pt
+*.onnx
+
+# MLflow databases and run logs
+mlflow.db
+mlflow.db-journal
+mlruns/
+
+# Python caching
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# IDE files
+.vscode/
+.idea/
+.ipynb_checkpoints/
