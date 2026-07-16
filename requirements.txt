@@ -12,3 +12,7 @@ kaggle
 matplotlib
 pillow
 timm
+fastapi
+uvicorn[standard]
+python-multipart
+sqlalchemy

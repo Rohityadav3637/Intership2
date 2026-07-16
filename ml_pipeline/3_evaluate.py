@@ -12,7 +12,7 @@ from pathlib import Path
 from datetime import datetime
 
 # ── Paths ──────────────────────────────────────────────────────────────────────
-BASE_DIR    = Path(r"c:\Users\Rishuraj Kumar\steelsight")
+BASE_DIR    = Path(__file__).resolve().parent.parent
 WEIGHTS     = BASE_DIR / "runs" / "train_baseline" / "weights" / "best.pt"
 DATASET_YAML = BASE_DIR / "dataset.yaml"
 DOCS_DIR    = BASE_DIR / "docs"

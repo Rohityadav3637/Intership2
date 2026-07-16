@@ -35,7 +35,7 @@ def rle_to_bbox(rle_str, height=256, width=1600):
 
 def main():
     # Setup paths
-    base_dir = r"c:\Users\Rishuraj Kumar\steelsight"
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
     data_dir = os.path.join(base_dir, "data")
     train_images_src = os.path.join(data_dir, "train_images")
     csv_path = os.path.join(data_dir, "train.csv")

@@ -26,7 +26,7 @@ import numpy as np
 import cv2
 
 # ── Paths ───────────────────────────────────────────────────────────────────────
-BASE_DIR   = Path(r"c:\Users\Rishuraj Kumar\steelsight")
+BASE_DIR   = Path(__file__).resolve().parent.parent
 WEIGHTS_PT = BASE_DIR / "runs" / "train_baseline" / "weights" / "best.pt"
 WEIGHTS_OX = BASE_DIR / "runs" / "train_baseline" / "weights" / "best.onnx"
 TEST_IMGS  = BASE_DIR / "data" / "images" / "test"

@@ -27,7 +27,7 @@ import cv2
 import numpy as np
 
 # ── Paths ───────────────────────────────────────────────────────────────────────
-BASE_DIR       = Path(r"c:\Users\Rishuraj Kumar\steelsight")
+BASE_DIR       = Path(__file__).resolve().parent.parent
 TRAIN_IMG_DIR  = BASE_DIR / "data" / "images" / "train"
 BASELINE_JSON  = BASE_DIR / "src" / "drift_monitor" / "baseline_stats.json"
 

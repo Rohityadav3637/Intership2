@@ -58,7 +58,7 @@ def draw_yolo_boxes(image_path, label_path, output_path):
     cv2.imwrite(output_path, img)
 
 def main():
-    base_dir = r"c:\Users\Rishuraj Kumar\steelsight"
+    base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     train_image_dir = os.path.join(base_dir, "data", "images", "train")
     train_label_dir = os.path.join(base_dir, "data", "labels", "train")
     output_dir = os.path.join(base_dir, "notebooks", "verification_output")

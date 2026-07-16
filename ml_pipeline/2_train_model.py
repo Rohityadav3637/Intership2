@@ -2,8 +2,7 @@ import os
 import sys
 
 # Configure MLflow tracking BEFORE importing ultralytics
-# so the built-in callback picks up the URI on module load
-base_dir = r"c:\Users\Rishuraj Kumar\steelsight"
+base_dir = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 # MLflow 3.x dropped file-store support — use SQLite as local backend
 mlflow_db  = os.path.join(base_dir, "mlflow.db").replace("\\", "/")
 MLFLOW_URI = f"sqlite:///{mlflow_db}"
