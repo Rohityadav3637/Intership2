@@ -49,8 +49,9 @@ if not _candidates:
     )
 MODEL_PATH = _candidates[0]
 
-DB_PATH = BASE_DIR / "src" / "inference_server" / "inference_log.db"
+DB_PATH = Path(__file__).resolve().parent / "inference_log.db"
 DB_PATH.parent.mkdir(parents=True, exist_ok=True)
+
 
 CONFIDENCE_THRESHOLD = 0.5
 

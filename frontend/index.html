@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SteelSight | Quality Inspection</title>
+  <meta name="description" content="AI-powered visual quality inspection for sheet-metal manufacturing">
+
+  <!-- Google Fonts: Space Grotesk + IBM Plex Sans + IBM Plex Mono -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- SVG filter for stamp rough/ink texture -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+    <defs>
+      <filter id="stamp-rough" x="-10%" y="-10%" width="120%" height="120%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.040" numOctaves="4" seed="5" result="noise"/>
+        <feDisplacementMap in="SourceGraphic" in2="noise" scale="2.5" xChannelSelector="R" yChannelSelector="G"/>
+      </filter>
+    </defs>
+  </svg>
+
+  <!-- Toast notification container -->
+  <div id="toast-container" role="status" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- HEADER                                 -->
+  <!-- ═══════════════════════════════════════ -->
+  <header class="app-header">
+    <div class="header-brand">
+      <div class="brand-icon" aria-hidden="true">
+        <svg width="36" height="36" viewBox="0 0 36 36" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <polygon points="18,2 32,10 32,26 18,34 4,26 4,10" stroke="#4fd1c5" stroke-width="1.5" fill="none" opacity="0.8"/>
+          <polygon points="18,8 26,13 26,23 18,28 10,23 10,13" fill="rgba(79,209,197,0.10)" stroke="#4fd1c5" stroke-width="1"/>
+          <line x1="18" y1="2" x2="18" y2="8" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <line x1="18" y1="28" x2="18" y2="34" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <line x1="4" y1="10" x2="10" y2="13" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <line x1="32" y1="10" x2="26" y2="13" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <line x1="4" y1="26" x2="10" y2="23" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <line x1="32" y1="26" x2="26" y2="23" stroke="#4fd1c5" stroke-width="1" opacity="0.4"/>
+          <circle cx="18" cy="18" r="2.5" fill="#4fd1c5"/>
+          <circle cx="18" cy="18" r="4.5" fill="none" stroke="#4fd1c5" stroke-width="0.5" opacity="0.5"/>
+        </svg>
+      </div>
+      <div>
+        <h1 class="brand-name">SteelSight</h1>
+        <p class="brand-tagline">AI-powered visual quality inspection for sheet-metal manufacturing</p>
+      </div>
+    </div>
+
+    <div class="header-right">
+      <div class="status-indicator" id="status-indicator">
+        <span class="status-dot" id="status-dot"></span>
+        <span class="status-label mono" id="status-label">CHECKING</span>
+      </div>
+      <div class="header-time mono" id="current-time" aria-label="Current UTC time"></div>
+    </div>
+  </header>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- KPI CARDS                              -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="kpi-section" aria-label="Key performance indicators">
+    <div class="kpi-card blueprint-bg">
+      <div class="kpi-label">Parts Inspected</div>
+      <div class="kpi-value mono" id="kpi-inspected">—</div>
+      <div class="kpi-sub">total in log</div>
+    </div>
+    <div class="kpi-card blueprint-bg">
+      <div class="kpi-label">Defect Rate</div>
+      <div class="kpi-value mono" id="kpi-defect-rate">—</div>
+      <div class="kpi-sub">of inspected parts</div>
+    </div>
+    <div class="kpi-card blueprint-bg">
+      <div class="kpi-label">Avg Inference Time</div>
+      <div class="kpi-value mono" id="kpi-inference">~48 ms</div>
+      <div class="kpi-sub">per image on CPU</div>
+    </div>
+    <div class="kpi-card blueprint-bg kpi-card--alert" id="kpi-uncertain-card">
+      <div class="kpi-label">Awaiting Review</div>
+      <div class="kpi-value mono" id="kpi-uncertain">—</div>
+      <div class="kpi-sub">uncertain predictions</div>
+    </div>
+  </section>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- MAIN GRID: INSPECTION + QUEUE          -->
+  <!-- ═══════════════════════════════════════ -->
+  <main class="main-grid">
+
+    <!-- ─── INSPECTION PANEL ─────────────── -->
+    <section class="inspection-panel panel" aria-label="Inspection station">
+      <div class="panel-header">
+        <h2 class="panel-title">Inspection Station</h2>
+        <span class="panel-badge mono">LIVE SCAN</span>
+      </div>
+
+      <!-- Reticle-framed drop zone -->
+      <div class="reticle-wrapper" id="reticle-wrapper">
+        <div class="corner corner-tl" aria-hidden="true"></div>
+        <div class="corner corner-tr" aria-hidden="true"></div>
+        <div class="corner corner-bl" aria-hidden="true"></div>
+        <div class="corner corner-br" aria-hidden="true"></div>
+
+        <div class="drop-zone blueprint-bg" id="drop-zone"
+             role="button" tabindex="0"
+             aria-label="Drop an image here or press Enter to browse files">
+
+          <!-- Default idle content -->
+          <div class="drop-idle" id="drop-idle">
+            <svg class="drop-icon" width="52" height="52" viewBox="0 0 52 52" fill="none" aria-hidden="true">
+              <rect x="9" y="14" width="34" height="24" rx="2" stroke="#4fd1c5" stroke-width="1.5"
+                    stroke-dasharray="5 2.5" fill="none" opacity="0.45"/>
+              <circle cx="19" cy="23" r="3.5" stroke="#4fd1c5" stroke-width="1.5" opacity="0.45"/>
+              <path d="M9 34l9-9 5.5 5.5 8-9L44 35" stroke="#4fd1c5" stroke-width="1.5"
+                    opacity="0.45" stroke-linejoin="round"/>
+              <path d="M26 7v9M22 12l4-5 4 5" stroke="#a39c8f" stroke-width="1.5"
+                    stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <p class="drop-label">Drop image to inspect</p>
+            <p class="drop-sub mono">JPG · PNG · BMP supported</p>
+            <button class="btn-select" id="btn-select-file">Select file</button>
+          </div>
+
+          <!-- Scanning animation overlay -->
+          <div class="scan-overlay" id="scan-overlay" hidden aria-live="polite">
+            <div class="scan-line" id="scan-line"></div>
+            <p class="scan-label mono" id="scan-label">SCANNING SURFACE...</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Hidden file input -->
+      <input type="file" id="file-input" accept="image/*" hidden aria-hidden="true">
+
+      <!-- Canvas result (shown after scan) -->
+      <div class="canvas-wrapper" id="canvas-wrapper" hidden>
+        <canvas id="result-canvas" aria-label="Annotated inspection image"></canvas>
+        <!-- Ink stamp overlay -->
+        <div id="result-stamp" class="result-stamp" hidden aria-live="assertive"></div>
+      </div>
+
+      <!-- Detections result panel -->
+      <div class="detections-panel" id="detections-panel" hidden>
+        <div class="detections-header">
+          <span class="detections-title">Scan Results</span>
+          <button class="btn-ghost mono" id="btn-rescan">↩ NEW SCAN</button>
+        </div>
+        <div id="detections-list"></div>
+      </div>
+    </section>
+
+    <!-- ─── REVIEW QUEUE ──────────────────── -->
+    <aside class="review-queue panel" aria-label="Uncertain predictions awaiting review">
+      <div class="panel-header">
+        <h2 class="panel-title">Review Queue</h2>
+        <span class="queue-count mono" id="queue-count">0</span>
+      </div>
+      <div class="queue-list" id="queue-list" aria-live="polite"></div>
+    </aside>
+
+  </main>
+
+  <!-- ═══════════════════════════════════════ -->
+  <!-- RECENT ACTIVITY TABLE                  -->
+  <!-- ═══════════════════════════════════════ -->
+  <section class="activity-section panel" aria-label="Recent inspection activity">
+    <div class="panel-header">
+      <h2 class="panel-title">Recent Activity</h2>
+      <button class="btn-ghost mono" id="btn-refresh" aria-label="Refresh activity">↻ REFRESH</button>
+    </div>
+    <div class="table-wrapper" role="region" aria-label="Activity table" tabindex="0">
+      <table class="activity-table" id="activity-table">
+        <thead>
+          <tr>
+            <th class="mono" scope="col">TIMESTAMP</th>
+            <th scope="col">FILE</th>
+            <th scope="col">TOP CLASS</th>
+            <th class="mono" scope="col">CONF</th>
+            <th scope="col">STATUS</th>
+          </tr>
+        </thead>
+        <tbody id="activity-body">
+          <tr class="skeleton-row">
+            <td colspan="5"><div class="skeleton"></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <script src="app.js"></script>
+</body>
+</html>
