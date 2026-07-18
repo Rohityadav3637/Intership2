@@ -1,9 +1,9 @@
 # Baseline Evaluation Results
 
 **Model**: YOLOv8n fine-tuned on Severstal Steel Defect Detection  
-**Weights**: `c:\Users\Rishuraj Kumar\steelsight\runs\train_baseline\weights\best.pt`  
+**Weights**: `C:\Users\rohit\Downloads\rohit\steelsight\runs\train_baseline\weights\best.pt`  
 **Split**: test  
-**Evaluated**: 2026-07-14 09:29  
+**Evaluated**: 2026-07-17 16:39  
 
 ## Per-Class Metrics
 
