@@ -4,11 +4,6 @@
    Design tokens: warm graphite, factory precision, single accent
    ================================================================ */
 
-/* ── Google Fonts loaded via HTML link tag ── */
-
-/* ──────────────────────────────────────────
-   1. DESIGN TOKENS
-   ────────────────────────────────────────── */
 :root {
   /* Backgrounds */
   --bg:        #1e1c1a;
@@ -37,9 +32,7 @@
   --gap: 1.25rem;
 }
 
-/* ──────────────────────────────────────────
-   2. RESET & BASE
-   ────────────────────────────────────────── */
+
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 html { scroll-behavior: smooth; }
